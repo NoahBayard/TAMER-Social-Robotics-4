@@ -9,10 +9,10 @@ class Interface:
     def __init__(self, action_map):
         self.action_map = action_map
         pygame.init()
-        self.font = pygame.font.Font("freesansbold.ttf", 32)
+        self.font = pygame.font.Font("freesansbold.ttf", 40)
 
         # Create Pygame window for displaying actions
-        self.action_screen = pygame.display.set_mode((400, 200))
+        self.action_screen = pygame.display.set_mode((600, 300))  # Increased size for better visibility
         pygame.display.set_caption("Agent Action Display")
 
         self.reward_value = 0  # Initial reward value
@@ -23,7 +23,8 @@ class Interface:
 
     def create_opencv_slider(self):
         """ Create OpenCV slider for reward value """
-        cv2.namedWindow("Reward Slider")  # Create a window for the slider
+        cv2.namedWindow("Reward Slider", cv2.WINDOW_NORMAL)  # Create a window for the slider, allow resizing
+        cv2.resizeWindow("Reward Slider", 600, 150)  # Resize window to make it larger
         cv2.createTrackbar("Reward", "Reward Slider", 100, 200, self.update_reward)  # Slider range from -1 to 1 (scaled)
 
     def update_reward(self, value):
@@ -32,11 +33,11 @@ class Interface:
 
     def draw_action_interface(self):
         """ Draw the action interface in the Pygame window """
-        area = self.action_screen.fill((0, 0, 0))  # Clear the action screen
+        self.action_screen.fill((0, 0, 0))  # Clear the action screen
         text = self.font.render(f"Action: {self.action_map[0]}", True, (255, 255, 255))
-        text_rect = text.get_rect(center=(200, 100))  # Centered in the action window
-        area = self.action_screen.blit(text, text_rect)
-        pygame.display.update(area)
+        text_rect = text.get_rect(center=(300, 150))  # Centered in the action window
+        self.action_screen.blit(text, text_rect)
+        pygame.display.update()
 
     def get_scalar_feedback(self):
         """
@@ -51,11 +52,11 @@ class Interface:
         Args:
             action: numerical action (for MountainCar environment only currently)
         """
-        area = self.action_screen.fill((0, 0, 0))
+        self.action_screen.fill((0, 0, 0))  # Clear the action screen
         text = self.font.render(self.action_map[action], True, (255, 255, 255))
-        text_rect = text.get_rect(center=(200, 100))  # Centered in the action window
-        area = self.action_screen.blit(text, text_rect)
-        pygame.display.update(area)
+        text_rect = text.get_rect(center=(300, 150))  # Centered in the action window
+        self.action_screen.blit(text, text_rect)
+        pygame.display.update()
 
     def update(self):
         """ Update method to handle events and refresh the Pygame window """
@@ -66,5 +67,21 @@ class Interface:
                 exit()
 
         self.draw_action_interface()  # Draw action display
-        cv2.imshow("Reward Slider", np.zeros((200, 400, 3), dtype=np.uint8))  # Show an empty frame for the slider window
+        cv2.imshow("Reward Slider", np.zeros((150, 600, 3), dtype=np.uint8))  # Show an empty frame for the slider window
         cv2.waitKey(1)  # Allow OpenCV to process events
+
+
+# Example usage
+if __name__ == "__main__":
+    action_map = {
+        0: 'Move Left',
+        1: 'Move Right',
+        2: 'Jump',
+        3: 'Crouch'
+    }
+    interface = Interface(action_map)
+
+    # Test interface loop
+    running = True
+    while running:
+        interface.update()
