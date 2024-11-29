@@ -22,7 +22,7 @@ TAXI_ACTION_MAP = {
 }
 
 # Directories for models and logs
-MODELS_DIR = Path(__file__).parent.joinpath('saved_taxi_models')
+MODELS_DIR = Path(__file__).parent.joinpath('saved_rl_taxi_models')
 LOGS_DIR = Path(__file__).parent.joinpath('logs')
 
 class TabularQFunctionApproximator:
