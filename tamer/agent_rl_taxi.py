@@ -9,6 +9,7 @@ from pathlib import Path
 from csv import DictWriter
 import time
 from itertools import count
+import random
 
 # Define the action map for Taxi environment
 TAXI_ACTION_MAP = {
@@ -215,22 +216,103 @@ class Tamer():
         print('\nCleaning up...')
         self.env.close()
 
+
+    def state_to_index(self, state):
+        if isinstance(state, tuple):
+            return state[0] * 1000 + state[1] * 100 + state[2] * 10 + state[3]
+        return state
+
+    def evaluate(self, n_episodes=100, seed_list=None):
+        """
+        Evaluate the agent's performance by playing `n_episodes` with random seed selection from `seed_list`.
+        
+        Args:
+            n_episodes (int): Number of episodes to run during evaluation.
+            seed_list (list): List of seeds to randomize across episodes.
+        """
+        print('Evaluating agent')
+        rewards = []
+        
+        for i in range(n_episodes):
+            # Randomly select a seed for each episode if seed_list is provided
+            if seed_list:
+                self.seed = random.choice(seed_list)
+            
+            state, info = self._reset_environment()  # Reset the environment with the new seed
+            state = self.state_to_index(state)
+            done = False
+            tot_reward = 0
+            print(f"Starting Episode {i + 1} with Seed: {self.seed}")
+
+            while not done:
+                action = self.act(state)
+                next_state, reward, done, info, _ = self.env.step(action)
+                next_state = self.state_to_index(next_state)
+                tot_reward += reward
+                state = next_state  # Transition to the next state
+
+            rewards.append(tot_reward)  # Append total reward for the episode
+            print(f"Episode {i + 1} finished with total reward: {tot_reward}")
+        
+        # Calculate the average reward
+        avg_reward = np.mean(rewards)
+        print(f'\nAverage total episode reward over {n_episodes} episodes: {avg_reward:.2f}')
+        return avg_reward
+
+
     def save_model(self, filename):
-        print(f"Saving model to {filename}")
-        with open(filename + '.p', 'wb') as file:
-            # Save both H and Q tables to allow continued training with TAMER+RL
-            pickle.dump((self.H, self.Q), file)
+        filename = filename + '.p' if not filename.endswith('.p') else filename
+        with open(MODELS_DIR.joinpath(filename), 'wb') as f:
+            print(f"Saving model to {filename}")
+            pickle.dump((self.H, self.Q), f)  # Save both H and Q as a tuple
+            print("Model saved successfully!")
+
 
     def load_model(self, filename):
-        print(f"Loading model from {filename}")
-        if not filename.endswith('.p'):
-            filename += '.p'
-        with open(filename, 'rb') as file:
-            self.H, self.Q = pickle.load(file)  # Load both H and Q tables
+        filename = filename + '.p' if not filename.endswith('.p') else filename
+        with open(MODELS_DIR.joinpath(filename), 'rb') as f:
+            print(f"Loading model from {filename}")
+            saved_data = pickle.load(f)
+            
+            # Ensure the saved data is a tuple of two TabularQFunctionApproximator objects
+            if isinstance(saved_data, tuple) and len(saved_data) == 2:
+                self.H, self.Q = saved_data
+                print("Model loaded successfully!")
+            else:
+                raise ValueError("Loaded model file does not contain the expected tuple (H, Q).")
 
-    def evaluate(self, n_episodes=100):
-        print('Evaluating agent')
-        rewards = self.play(n_episodes=n_episodes, render=False)
-        avg_reward = np.mean(rewards)
-        print(f'Average total episode reward over {n_episodes} episodes: {avg_reward:.2f}')
-        return avg_reward
+
+    def play(self, n_episodes=1, render=False):
+        if render:
+            cv2.namedWindow('OpenAI Gymnasium Playing', cv2.WINDOW_NORMAL)
+        
+        ep_rewards = []  # Initialize a list to store the rewards for each episode
+        for i in range(n_episodes):
+            state, info = self._reset_environment()  # Reset the environment
+            print(self.seed)
+            state = self.state_to_index(state)
+            done = False
+            tot_reward = 0
+            print(f"Starting Episode {i + 1}")
+
+            while not done:
+                action = self.act(state)
+                next_state, reward, done, info, _ = self.env.step(action)
+                next_state = self.state_to_index(next_state)
+                tot_reward += reward
+
+                if render:
+                    frame_bgr = cv2.cvtColor(self.env.render(), cv2.COLOR_RGB2BGR)
+                    cv2.imshow('OpenAI Gymnasium Playing', frame_bgr)
+                    key = cv2.waitKey(1)
+                    if key == 27:  # Exit on 'ESC'
+                        break
+
+                state = next_state  # Transition to the next state
+            ep_rewards.append(tot_reward)  # Append total reward for the episode
+            print(f"Episode {i + 1} finished with total reward: {tot_reward}")
+        
+        if render:
+            cv2.destroyWindow('OpenAI Gymnasium Playing')
+
+        return ep_rewards  # Return the list of rewards
