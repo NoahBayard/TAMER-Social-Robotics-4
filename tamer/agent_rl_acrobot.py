@@ -184,7 +184,7 @@ class Tamer:
             cv2.namedWindow('OpenAI Gymnasium Playing', cv2.WINDOW_NORMAL)
         self.epsilon = 0
         ep_rewards = []
-        max_timesteps = 400
+        max_timesteps = 1000 #Need a higher max_timesteps
         for i in range(n_episodes):
             state = self.env.reset()[0]
             done = False
