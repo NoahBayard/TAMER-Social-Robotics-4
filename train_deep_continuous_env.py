@@ -1,4 +1,4 @@
-import asyncio
+_import asyncio
 import gymnasium as gym
 from tamer.agent_deep_mc import Tamer
 import os
@@ -19,7 +19,7 @@ async def main():
     agent = Tamer(env, num_episodes, discount_factor, epsilon, min_eps, tame, tamer_training_timestep)
 
     print("Starting training phase")
-    save_dir = '/Users/noahbayard/Downloads/TAMER-main/saved_models_cartpole'
+    save_dir = '/Users/noahbayard/Downloads/TAMER-main/saved_deep_models'
     os.makedirs(save_dir, exist_ok=True)  # Ensure the directory exists
 
     for episode in range(num_episodes):
