@@ -6,4 +6,4 @@ This study also includes experiments on the extended versions of the TAMER frame
 
 # Instructions 
 
-To train the model in a specific environment, run the desired train script. To evaluate the agent's learning process, evaluate the learned models by running the corresponding evaluate script. To change interfaces, change the "from .interface" line in the desired agent script to "from .interface_mouse" or to "from .interface_slide". 
+To train the model in a specific environment, run the desired train script. To evaluate the agent's learning process, evaluate the learned models by running the corresponding evaluate script. To change interfaces, change the "from .interface" line in the desired agent script to "from .interface_mouse" or to "from .interface_slide". To save learned models, don't forget to create a folder to contain them (see code for naming convention).
