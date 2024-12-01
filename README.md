@@ -15,7 +15,7 @@ This study also includes experiments on the extended versions of the TAMER frame
 3. **Interface Customization**  
    To change interfaces, modify the `from .interface` line in the desired agent script to one of the following options:  
    - `from .interface_mouse`  
-   - `from .interface_multi  
+   - `from .interface_multi`   
 
 4. **Model Saving**  
    To save learned models, create a folder to contain them. Check the code for naming conventions to ensure models are saved correctly.
