@@ -24,7 +24,7 @@ This study also includes experiments on the extended versions of the TAMER frame
 
 ---
 
-## To-Do / To Be Done
+## To-Do
 
 - **Oracle for Human Feedback**  
   Implement an oracle to simulate human feedback during training episodes. This allows:  
